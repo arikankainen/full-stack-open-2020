@@ -20,7 +20,7 @@ const Statistics = ({ good, neutral, bad }) => {
   let positive = good / all * 100
   if (isNaN(positive)) positive = 0
 
-  return (
+  if (all > 0) return (
     <div>
       <h1>statistics</h1>
       <p>good {good}</p>
@@ -29,6 +29,12 @@ const Statistics = ({ good, neutral, bad }) => {
       <p>all {all}</p>
       <p>average {average}</p>
       <p>positive {positive} %</p>
+    </div>
+  )
+  else return (
+    <div>
+      <h1>statistics</h1>
+      <p>No feedback given</p>
     </div>
   )
 }
