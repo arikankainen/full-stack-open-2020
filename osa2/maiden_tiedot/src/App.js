@@ -22,7 +22,7 @@ const App = () => {
   return (
     <div>
       <Filter filter={filter} handleChange={handleFilter} />
-      <Countries countries={filteredCountries} />
+      <Countries countries={filteredCountries} handleClick={handleFilter} />
     </div>
   )
 }
@@ -33,7 +33,7 @@ const Filter = ({filter, handleChange}) => {
   )
 }
 
-const Countries = ({countries}) => {
+const Countries = ({countries, handleClick}) => {
   if (countries.length === 0) return (
     <div>No matches, specify another filter</div>
   )
@@ -44,13 +44,13 @@ const Countries = ({countries}) => {
     <div>Too many matches, specify another filter</div>
   )
   else return (
-    <div>{countries.map(country => <Country key={country.name} country={country} />)}</div>
+    <div>{countries.map(country => <Country key={country.name} country={country} handleClick={handleClick} />)}</div>
   )
 }
 
-const Country = ({country}) => {
+const Country = ({country, handleClick}) => {
   return (
-    <div>{country.name}</div>
+    <div>{country.name} <button value={country.name} onClick={handleClick}>show</button></div>
   )
 }
 
