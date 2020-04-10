@@ -4,7 +4,7 @@ import axios from 'axios'
 const App = () => {
   const [countries, setCountries] = useState([])
   const [filter, setFilter] = useState('')
-
+  
   const handleFilter = (event) => {
     setFilter(event.target.value)
   }
@@ -37,7 +37,7 @@ const Countries = ({countries, handleClick}) => {
   if (countries.length === 0) return (
     <div>No matches, specify another filter</div>
   )
-  if (countries.length === 1) return (
+  else if (countries.length === 1) return (
     <div><CountryInfo country={countries[0]} /></div>
   )
   else if (countries.length > 10) return (
@@ -55,17 +55,44 @@ const Country = ({country, handleClick}) => {
 }
 
 const CountryInfo = ({country}) => {
+  const [weather, setWeather] = useState([])
+  const api_key = process.env.REACT_APP_API_KEY.trim()
+  const address = `http://api.weatherstack.com/current?access_key=${api_key}&query=${country.capital}`
+
+  useEffect(() => {
+    axios
+    .get(address)
+    .then(response => {
+      setWeather(response.data)
+    })
+  }, [address])
+
   return (
     <div>
       <h1>{country.name}</h1>
       <div>capital {country.capital}</div>
       <div>population {country.population}</div>
-      <h2>languages</h2>
+      <h2>Spoken languages</h2>
       <ul>
         {country.languages.map(language => <li key={language.name}>{language.name}</li>)}
       </ul>
       <img alt={`${country.demonym} flag`} src={country.flag} height="150" />
+      <h2>Weather in {country.capital}</h2>
+      <Weather weather={weather} />
     </div>
+  )
+}
+
+const Weather = ({weather}) => {
+  if (Object.keys(weather).length > 0) return (
+    <div>
+      <div><strong>temperature: </strong>{weather.current.temperature} Celcius</div>
+      {weather.current.weather_icons.map(icon => <img key={icon} alt="weather_icon" src={icon} />)}
+      <div><strong>wind: </strong>{weather.current.wind_speed} {weather.request.unit} direction {weather.current.wind_dir}</div>
+    </div>
+  )
+  else return (
+    <div>Fetching weather...</div>
   )
 }
 
