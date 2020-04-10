@@ -10,13 +10,13 @@ const App = () => {
 
   useEffect(() => {
     personService
-    .getAll()
-    .then(initialPersons => {
-      setPersons(initialPersons)
-    })
-    .catch(error => {
-      alert(`Error retrieving phonebook from server`)
-    })
+      .getAll()
+      .then(initialPersons => {
+        setPersons(initialPersons)
+      })
+      .catch(error => {
+        alert(`Error retrieving phonebook from server`)
+      })
   }, [])
 
   const handleNewName = (event) => {
@@ -25,6 +25,22 @@ const App = () => {
 
   const handleNewNumber = (event) => {
     setNewNumber(event.target.value)
+  }
+
+  const handleDeleteNumber = (event) => {
+    const id = +event.target.value
+    const nameToDelete = persons.filter(person => person.id === id)[0].name
+    
+    if (window.confirm(`Delete ${nameToDelete} ?`)) {
+      personService
+        .remove(id)
+        .then(() => {
+          setPersons(persons.filter(person => person.id !== id))
+        })
+        .catch(error => {
+          alert(`Error deleting person from server`)
+        })
+    }
   }
 
   const handleFilter = (event) => {
@@ -54,15 +70,15 @@ const App = () => {
       alert(`${newName} is already added to phonebook`)
     } else {
       personService
-      .create(personObject)
-      .then(returnedPerson => {
-        setPersons(persons.concat(returnedPerson))
-        setNewName('')
-        setNewNumber('')
-      })
-      .catch(error => {
-        alert(`Error adding ${newName} to server`)
-      })
+        .create(personObject)
+        .then(returnedPerson => {
+          setPersons(persons.concat(returnedPerson))
+          setNewName('')
+          setNewNumber('')
+        })
+        .catch(error => {
+          alert(`Error adding ${newName} to server`)
+        })
     }
   }
 
@@ -73,7 +89,7 @@ const App = () => {
       <h3>add a new</h3>
       <PersonForm handleSubmit={addPerson} name={newName} handleNameChange={handleNewName} number={newNumber} handleNumberChange={handleNewNumber} />
       <h3>Numbers</h3>
-      <Numbers persons={personsToShow} />
+      <Numbers persons={personsToShow} handleDelete={handleDeleteNumber} />
     </div>
   )
 }
@@ -94,17 +110,19 @@ const PersonForm = ({handleSubmit, name, handleNameChange, number, handleNumberC
   )
 }
 
-const Numbers = ({persons}) => {
+const Numbers = ({persons, handleDelete}) => {
   return (
     <ul>
-      {persons.map((person) => <Number key={person.name} person={person} />)}
+      {persons.map((person) => <Number key={person.name} person={person} handleDelete={handleDelete} />)}
     </ul>
   )
 }
 
-const Number = ({person}) => {
+const Number = ({person, handleDelete}) => {
   return (
-    <li>{person.name} {person.number}</li>
+    <li>
+      <div>{person.name} {person.number} <button value={person.id} onClick={handleDelete}>delete</button></div>
+    </li>
   )
 }
 
