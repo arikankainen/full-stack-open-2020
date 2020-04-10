@@ -29,7 +29,7 @@ const App = () => {
 
   const handleDeleteNumber = (event) => {
     const id = +event.target.value
-    const nameToDelete = persons.filter(person => person.id === id)[0].name
+    const nameToDelete = persons.find(person => person.id === id).name
     
     if (window.confirm(`Delete ${nameToDelete} ?`)) {
       personService
@@ -38,7 +38,7 @@ const App = () => {
           setPersons(persons.filter(person => person.id !== id))
         })
         .catch(error => {
-          alert(`Error deleting person from server`)
+          alert(`Error deleting ${nameToDelete} from server`)
         })
     }
   }
@@ -56,18 +56,29 @@ const App = () => {
 
   const addPerson = (event) => {
     event.preventDefault()
+    
     const personObject = {
       name: newName,
       number: newNumber
     }
 
-    let alreadyAdded = false
-    persons.forEach((item, index, array) => {
-      if (item.name === newName) alreadyAdded = true
-    })
-
-    if (alreadyAdded) {
-      alert(`${newName} is already added to phonebook`)
+    if (persons.some(person => person.name === newName)) {
+      const existingPerson = persons.find(person => person.name === newName)
+      
+      if (window.confirm(`${newName} is already added to phonebook, replace old number with a new one?`)) {
+        personService
+        .update(existingPerson.id, personObject)
+        .then(returnedPerson => {
+          setPersons(
+            persons.map(person => person.id !== existingPerson.id ? person : returnedPerson)
+          )
+          setNewName('')
+          setNewNumber('')
+        })
+        .catch(error => {
+          alert(`Error updating ${newName} to server`)
+        })
+      }
     } else {
       personService
         .create(personObject)
