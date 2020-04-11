@@ -7,6 +7,7 @@ const App = () => {
   const [newNumber, setNewNumber] = useState('')
   const [filter, setFilter] = useState('')
   const [showAll, setShowAll] = useState(true)
+  const [errorMessage, setErrorMessage] = useState(null)
   const [successMessage, setSuccessMessage] = useState(null)
 
   useEffect(() => {
@@ -16,26 +17,40 @@ const App = () => {
         setPersons(initialPersons)
       })
       .catch(error => {
-        alert(`Error retrieving phonebook from server`)
+        showErrorMessage(`Error retrieving phonebook from server`)
       })
   }, [])
 
-  function showSuccessMessage(message) {
+  const showErrorMessage = message => {
+    setErrorMessage(message)
+    setTimeout(() => {
+      setErrorMessage(null)
+    }, 5000)
+  }
+
+  const showSuccessMessage = message => {
     setSuccessMessage(message)
     setTimeout(() => {
       setSuccessMessage(null)
     }, 5000)
   }
 
-  const handleNewName = (event) => {
+  const handleNewName = event => {
     setNewName(event.target.value)
   }
 
-  const handleNewNumber = (event) => {
+  const handleNewNumber = event => {
     setNewNumber(event.target.value)
   }
 
-  const handleDeleteNumber = (event) => {
+  const handleFilter = event => {
+    setShowAll(
+      (event.target.value.length > 0) ? false : true
+    )
+    setFilter(event.target.value)
+  }
+
+  const handleDeleteNumber = event => {
     const id = +event.target.value
     const nameToDelete = persons.find(person => person.id === id).name
     
@@ -47,23 +62,16 @@ const App = () => {
           showSuccessMessage(`Deleted '${nameToDelete}'`)
         })
         .catch(error => {
-          alert(`Error deleting ${nameToDelete} from server`)
+          showErrorMessage(`Error deleting '${nameToDelete}' from server`)
         })
     }
-  }
-
-  const handleFilter = (event) => {
-    setShowAll(
-      (event.target.value.length > 0) ? false : true
-    )
-    setFilter(event.target.value)
   }
 
   const personsToShow = showAll
     ? persons
     : persons.filter(person => person.name.toUpperCase().includes(filter.toUpperCase()))
 
-  const addPerson = (event) => {
+  const addPerson = event => {
     event.preventDefault()
     
     const personObject = {
@@ -86,7 +94,7 @@ const App = () => {
           showSuccessMessage(`Updated '${newName}'`)
         })
         .catch(error => {
-          alert(`Error updating ${newName} to server`)
+          showErrorMessage(`Error updating '${newName}' to server`)
         })
       }
     } else {
@@ -99,7 +107,7 @@ const App = () => {
           showSuccessMessage(`Added '${newName}'`)
         })
         .catch(error => {
-          alert(`Error adding ${newName} to server`)
+          showErrorMessage(`Error adding '${newName}' to server`)
         })
     }
   }
@@ -107,7 +115,8 @@ const App = () => {
   return (
     <div>
       <h2>Phonebook</h2>
-      <Notification message={successMessage} />
+      <Notification message={errorMessage} messageStyle="error" />
+      <Notification message={successMessage} messageStyle="success" />
       <Filter filter={filter} handleChange={handleFilter} />
       <h3>add a new</h3>
       <PersonForm handleSubmit={addPerson} name={newName} handleNameChange={handleNewName} number={newNumber} handleNumberChange={handleNewNumber} />
@@ -117,13 +126,13 @@ const App = () => {
   )
 }
 
-const Notification = ({message}) => {
+const Notification = ({message, messageStyle}) => {
   if (message === null) {
     return null
   }
 
   return (
-    <div className="success">
+    <div className={messageStyle}>
       {message}
     </div>
   )
@@ -148,7 +157,7 @@ const PersonForm = ({handleSubmit, name, handleNameChange, number, handleNumberC
 const Numbers = ({persons, handleDelete}) => {
   return (
     <ul>
-      {persons.map((person) => <Number key={person.name} person={person} handleDelete={handleDelete} />)}
+      {persons.map(person => <Number key={person.name} person={person} handleDelete={handleDelete} />)}
     </ul>
   )
 }
