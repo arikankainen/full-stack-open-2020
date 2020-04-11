@@ -7,6 +7,7 @@ const App = () => {
   const [newNumber, setNewNumber] = useState('')
   const [filter, setFilter] = useState('')
   const [showAll, setShowAll] = useState(true)
+  const [successMessage, setSuccessMessage] = useState(null)
 
   useEffect(() => {
     personService
@@ -18,6 +19,13 @@ const App = () => {
         alert(`Error retrieving phonebook from server`)
       })
   }, [])
+
+  function showSuccessMessage(message) {
+    setSuccessMessage(message)
+    setTimeout(() => {
+      setSuccessMessage(null)
+    }, 5000)
+  }
 
   const handleNewName = (event) => {
     setNewName(event.target.value)
@@ -36,6 +44,7 @@ const App = () => {
         .remove(id)
         .then(() => {
           setPersons(persons.filter(person => person.id !== id))
+          showSuccessMessage(`Deleted '${nameToDelete}'`)
         })
         .catch(error => {
           alert(`Error deleting ${nameToDelete} from server`)
@@ -74,6 +83,7 @@ const App = () => {
           )
           setNewName('')
           setNewNumber('')
+          showSuccessMessage(`Updated '${newName}'`)
         })
         .catch(error => {
           alert(`Error updating ${newName} to server`)
@@ -86,6 +96,7 @@ const App = () => {
           setPersons(persons.concat(returnedPerson))
           setNewName('')
           setNewNumber('')
+          showSuccessMessage(`Added '${newName}'`)
         })
         .catch(error => {
           alert(`Error adding ${newName} to server`)
@@ -96,11 +107,24 @@ const App = () => {
   return (
     <div>
       <h2>Phonebook</h2>
+      <Notification message={successMessage} />
       <Filter filter={filter} handleChange={handleFilter} />
       <h3>add a new</h3>
       <PersonForm handleSubmit={addPerson} name={newName} handleNameChange={handleNewName} number={newNumber} handleNumberChange={handleNewNumber} />
       <h3>Numbers</h3>
       <Numbers persons={personsToShow} handleDelete={handleDeleteNumber} />
+    </div>
+  )
+}
+
+const Notification = ({message}) => {
+  if (message === null) {
+    return null
+  }
+
+  return (
+    <div className="success">
+      {message}
     </div>
   )
 }
