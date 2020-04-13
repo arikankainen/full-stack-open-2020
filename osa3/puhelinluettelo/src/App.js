@@ -52,7 +52,6 @@ const App = () => {
 
   const handleDeleteNumber = event => {
     const id = event.target.value
-    console.log(id)
     const nameToDelete = persons.find(person => person.id === id).name
     
     if (window.confirm(`Delete ${nameToDelete} ?`)) {
@@ -95,7 +94,13 @@ const App = () => {
           showSuccessMessage(`Updated '${newName}'`)
         })
         .catch(error => {
-          showErrorMessage(`Error updating '${newName}' to server`)
+          const message = error.response.data
+
+          if (message.hasOwnProperty('error')) {
+            showErrorMessage(message.error)
+          } else {
+            showErrorMessage(`Error adding '${newName}' to server`)
+          }
         })
       }
     } else {
@@ -108,7 +113,13 @@ const App = () => {
           showSuccessMessage(`Added '${newName}'`)
         })
         .catch(error => {
-          showErrorMessage(`Error adding '${newName}' to server`)
+          const message = error.response.data
+
+          if (message.hasOwnProperty('error')) {
+            showErrorMessage(message.error)
+          } else {
+            showErrorMessage(`Error adding '${newName}' to server`)
+          }
         })
     }
   }
