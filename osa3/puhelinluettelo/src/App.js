@@ -51,7 +51,8 @@ const App = () => {
   }
 
   const handleDeleteNumber = event => {
-    const id = +event.target.value
+    const id = event.target.value
+    console.log(id)
     const nameToDelete = persons.find(person => person.id === id).name
     
     if (window.confirm(`Delete ${nameToDelete} ?`)) {
