@@ -16,8 +16,8 @@ const App = () => {
       .then(initialPersons => {
         setPersons(initialPersons)
       })
-      .catch(error => {
-        showErrorMessage(`Error retrieving phonebook from server`)
+      .catch(() => {
+        showErrorMessage('Error retrieving phonebook from server')
       })
   }, [])
 
@@ -53,7 +53,7 @@ const App = () => {
   const handleDeleteNumber = event => {
     const id = event.target.value
     const nameToDelete = persons.find(person => person.id === id).name
-    
+
     if (window.confirm(`Delete ${nameToDelete} ?`)) {
       personService
         .remove(id)
@@ -61,7 +61,7 @@ const App = () => {
           setPersons(persons.filter(person => person.id !== id))
           showSuccessMessage(`Deleted '${nameToDelete}'`)
         })
-        .catch(error => {
+        .catch(() => {
           showErrorMessage(`Error deleting '${nameToDelete}' from server`)
         })
     }
@@ -73,7 +73,7 @@ const App = () => {
 
   const addPerson = event => {
     event.preventDefault()
-    
+
     const personObject = {
       name: newName,
       number: newNumber
@@ -81,27 +81,27 @@ const App = () => {
 
     if (persons.some(person => person.name === newName)) {
       const existingPerson = persons.find(person => person.name === newName)
-      
+
       if (window.confirm(`${newName} is already added to phonebook, replace old number with a new one?`)) {
         personService
-        .update(existingPerson.id, personObject)
-        .then(returnedPerson => {
-          setPersons(
-            persons.map(person => person.id !== existingPerson.id ? person : returnedPerson)
-          )
-          setNewName('')
-          setNewNumber('')
-          showSuccessMessage(`Updated '${newName}'`)
-        })
-        .catch(error => {
-          const message = error.response.data
+          .update(existingPerson.id, personObject)
+          .then(returnedPerson => {
+            setPersons(
+              persons.map(person => person.id !== existingPerson.id ? person : returnedPerson)
+            )
+            setNewName('')
+            setNewNumber('')
+            showSuccessMessage(`Updated '${newName}'`)
+          })
+          .catch(error => {
+            const message = error.response.data
 
-          if (message.hasOwnProperty('error')) {
-            showErrorMessage(message.error)
-          } else {
-            showErrorMessage(`Error adding '${newName}' to server`)
-          }
-        })
+            if (Object.prototype.hasOwnProperty.call(message, 'error')) {
+              showErrorMessage(message.error)
+            } else {
+              showErrorMessage(`Error adding '${newName}' to server`)
+            }
+          })
       }
     } else {
       personService
@@ -115,7 +115,8 @@ const App = () => {
         .catch(error => {
           const message = error.response.data
 
-          if (message.hasOwnProperty('error')) {
+          //if (message.hasOwnProperty('error')) { // <- ESlint error!
+          if (Object.prototype.hasOwnProperty.call(message, 'error')) {
             showErrorMessage(message.error)
           } else {
             showErrorMessage(`Error adding '${newName}' to server`)
@@ -138,7 +139,7 @@ const App = () => {
   )
 }
 
-const Notification = ({message, messageStyle}) => {
+const Notification = ({ message, messageStyle }) => {
   if (message === null) {
     return null
   }
@@ -150,13 +151,13 @@ const Notification = ({message, messageStyle}) => {
   )
 }
 
-const Filter = ({filter, handleChange}) => {
+const Filter = ({ filter, handleChange }) => {
   return (
     <div>filter shown with <input value={filter} onChange={handleChange} /></div>
   )
 }
 
-const PersonForm = ({handleSubmit, name, handleNameChange, number, handleNumberChange}) => {
+const PersonForm = ({ handleSubmit, name, handleNameChange, number, handleNumberChange }) => {
   return (
     <form onSubmit={handleSubmit}>
       <div>name: <input value={name} onChange={handleNameChange} /></div>
@@ -166,7 +167,7 @@ const PersonForm = ({handleSubmit, name, handleNameChange, number, handleNumberC
   )
 }
 
-const Numbers = ({persons, handleDelete}) => {
+const Numbers = ({ persons, handleDelete }) => {
   return (
     <ul>
       {persons.map(person => <Number key={person.name} person={person} handleDelete={handleDelete} />)}
@@ -174,7 +175,7 @@ const Numbers = ({persons, handleDelete}) => {
   )
 }
 
-const Number = ({person, handleDelete}) => {
+const Number = ({ person, handleDelete }) => {
   return (
     <li>
       <div>{person.name} {person.number} <button value={person.id} onClick={handleDelete}>delete</button></div>
